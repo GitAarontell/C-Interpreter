@@ -24,7 +24,7 @@ char *data; // for the data segment for storing initialized data
 int *pc, // program counter stores the memory address of next instruction to run
 	*bp, // base pointer, points to elements on the stack
 	*sp, // stack pointer, always points to top of stack
-	ax, // general regiter to store result of instruction
+	ax, // general register to store result of instruction
 	cycle;
 
 //////////////////////////////////////////////////////////////////////////////// global variables
@@ -45,8 +45,26 @@ void program() {
 		next();
 	}
 }
-
+// pc is program counter stores the memory address of next instruction to run
+// quick note on allocation of mem, higher memory addresses are at the start, and lower
+// mem addresses are on the bottom. When we push a value we add to the high address then sp--
+// when we pop a value we need to go back up so sp++
 int eval() {
+	int op, *tmp;
+	while(1) {
+		op = *pc++; // gets the next operation code
+		if (op == IMM) { //IMM <num> to put immediate <num> into register AX
+			ax = *pc++; // ax is a general register to store result of instruction
+		} else if (op == LC) {
+			ax = *(char *)ax; //LC to load a character into AX from a memory address which is stored in AX before execution.
+		} else if (op == LI) {
+			ax = *(int *)ax; //LI just like LC but dealing with integer instead of character.
+		} else if (op == SC) {
+			ax = *(char *)*sp++ = ax; //SC to store the character in AX into the memory whose address is stored on the top of the stack.
+		} else if (op == SI) {
+			*(int *)*sp++ = ax; //SI just like SC but dealing with integer instead of character.
+		}
+	}
 	return 0;
 }
 
@@ -159,3 +177,10 @@ enum {
 	OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD,
 	OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT
 };
+// MOV - moves data into registers or the memory, hard to tell type so we break it down into these 5 types
+
+// IMM <num> to put immediate <num> into register AX.
+// LC to load a character into AX from a memory address which is stored in AX before execution.
+// LI just like LC but dealing with integer instead of character.
+// SC to store the character in AX into the memory whose address is stored on the top of the stack.
+// SI just like SC but dealing with integer instead of character.
