@@ -51,18 +51,28 @@ void program() {
 // when we pop a value we need to go back up so sp++
 int eval() {
 	int op, *tmp;
-	while(1) {
-		op = *pc++; // gets the next operation code
+	while(1) { next operation code
 		if (op == IMM) { //IMM <num> to put immediate <num> into register AX
 			ax = *pc++; // ax is a general register to store result of instruction
-		} else if (op == LC) {
+		} else if (op == LC) {4
 			ax = *(char *)ax; //LC to load a character into AX from a memory address which is stored in AX before execution.
 		} else if (op == LI) {
 			ax = *(int *)ax; //LI just like LC but dealing with integer instead of character.
 		} else if (op == SC) {
+			// so *(sp++) = *sp the dereferenced value and then sp increments, 
+			// the (char*)*(sp++) returns an int that is cast to a string
+			// so apparently ax stays the same. The thing I see here though is ax is a mem address not an actual int value
 			ax = *(char *)*sp++ = ax; //SC to store the character in AX into the memory whose address is stored on the top of the stack.
 		} else if (op == SI) {
 			*(int *)*sp++ = ax; //SI just like SC but dealing with integer instead of character.
+		} else if (op == PUSH) {
+			*--sp = ax; //  push the value in AX onto the stack
+		} else if (op == JMP) {
+			pc = (int*)*pc; // // jump to the address
+		} else if (op == JZ) {
+			pc = ax ? pc + 1 : (int *)*pc; // jump if ax is zero
+		} else if (op == JNZ) {
+			pc = ax ? (int *)*pc : pc + 1; // jump if ax is not zero
 		}
 	}
 	return 0;
