@@ -8,6 +8,20 @@
 #define int long long // preprocessor replaces every keyword int with long long
 
 
+// instruction set to talk to cpu
+enum {
+	LEA, IMM, JMP, CALL, JZ, JNZ, ENT, ADJ, LEV, LI, LC, SI, SC, PUSH,
+	OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD,
+	OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT
+};
+// MOV - moves data into registers or the memory, hard to tell type so we break it down into these 5 types
+
+// IMM <num> to put immediate <num> into register AX.
+// LC to load a character into AX from a memory address which is stored in AX before execution.
+// LI just like LC but dealing with integer instead of character.
+// SC to store the character in AX into the memory whose address is stored on the top of the stack.
+// SI just like SC but dealing with integer instead of character.
+
 //////////////////////////////////////////////////////////////////////////////// global variables
 
 int token;
@@ -51,10 +65,15 @@ void program() {
 // when we pop a value we need to go back up so sp++
 int eval() {
 	int op, *tmp;
-	while(1) { next operation code
+	printf("this is op\n");
+	printf((char*)*pc);
+	printf("\n");
+	op = *pc++; // op equals the
+	
+	while(1) { //next operation code
 		if (op == IMM) { //IMM <num> to put immediate <num> into register AX
 			ax = *pc++; // ax is a general register to store result of instruction
-		} else if (op == LC) {4
+		} else if (op == LC) {
 			ax = *(char *)ax; //LC to load a character into AX from a memory address which is stored in AX before execution.
 		} else if (op == LI) {
 			ax = *(int *)ax; //LI just like LC but dealing with integer instead of character.
@@ -68,7 +87,7 @@ int eval() {
 		} else if (op == PUSH) {
 			*--sp = ax; //  push the value in AX onto the stack
 		} else if (op == JMP) {
-	tfr		pc = (int*)*pc; // // jump to the address
+			pc = (int*)*pc; // // jump to the address
 		} else if (op == JZ) {
 			pc = ax ? pc + 1 : (int *)*pc; // jump if ax is zero
 		} else if (op == JNZ) {
@@ -196,8 +215,8 @@ int main(int argc, char **argv) {
 	// this basically sets all the bytes to zero for each one, which is different from calloc in that calloc initializes
 	// as well, while memset expects the memory to already exist
 	memset(text, 0, poolsize);
-	memset(stack, 0, poolsize);
 	memset(data, 0, poolsize);
+	memset(stack, 0, poolsize);
 
 	// sp always points to the top of the stack, so stack is size of poolsize
 	// it should also be noted that stack goes downward so the top is
@@ -217,22 +236,24 @@ int main(int argc, char **argv) {
 	sp = (int*)((uintptr_t)stack + poolsize);
 	bp = sp;
 	ax = 0;
-	
+	i = 0;
+	text[i++] = IMM;
+    text[i++] = 10;
+    text[i++] = PUSH;
+    text[i++] = IMM;
+    text[i++] = 20;
+    text[i++] = ADD;
+    text[i++] = PUSH;
+    text[i++] = EXIT;
+    pc = text;
+	printf("Debugging...");
+
+	// int length = sizeof(text)
+	// for (int i = 0; i< text.lenght) {
+
+	// }
+	// printf(pc);
 	program();
 
-	return eval();
+	//return eval();
 }
-
-// instruction set to talk to cpu
-enum {
-	LEA, IMM, JMP, CALL, JZ, JNZ, ENT, ADJ, LEV, LI, LC, SI, SC, PUSH,
-	OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD,
-	OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT
-};
-// MOV - moves data into registers or the memory, hard to tell type so we break it down into these 5 types
-
-// IMM <num> to put immediate <num> into register AX.
-// LC to load a character into AX from a memory address which is stored in AX before execution.
-// LI just like LC but dealing with integer instead of character.
-// SC to store the character in AX into the memory whose address is stored on the top of the stack.
-// SI just like SC but dealing with integer instead of character.
