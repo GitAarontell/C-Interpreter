@@ -244,13 +244,7 @@ int main(int argc, char **argv) {
     text[i++] = PUSH;
     text[i++] = EXIT;
     pc = text;
-	printf("Debugging...");
-
-	// int length = sizeof(text)
-	// for (int i = 0; i< text.lenght) {
-
-	// }
-	// printf(pc);
+	
 	program();
 
 	return eval();

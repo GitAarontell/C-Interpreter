@@ -1,4 +1,5 @@
-// this is a ssimple virtual machine
+// this is a ssimple virtual machine from http://web.archive.org/web/20200121100942/https://blog.felixangell.com/virtual-machine-in-c/
+// to help understand the more complex cInterpreter vm section
 #include <stdbool.h>
 #include <stdio.h>
 
