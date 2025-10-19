@@ -65,14 +65,12 @@ void program() {
 // when we pop a value we need to go back up so sp++
 int eval() {
 	int op, *tmp;
-	printf("this is op\n");
-	printf((char*)*pc);
-	printf("\n");
-	op = *pc++; // op equals the
 	
 	while(1) { //next operation code
+		op = *pc++; // op equals the
 		if (op == IMM) { //IMM <num> to put immediate <num> into register AX
-			ax = *pc++; // ax is a general register to store result of instruction
+			ax = *pc; // ax is a general register to store result of instruction
+			pc++;
 		} else if (op == LC) {
 			ax = *(char *)ax; //LC to load a character into AX from a memory address which is stored in AX before execution.
 		} else if (op == LI) {
@@ -255,5 +253,5 @@ int main(int argc, char **argv) {
 	// printf(pc);
 	program();
 
-	//return eval();
+	return eval();
 }

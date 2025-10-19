@@ -6,7 +6,7 @@ main: main.c
 	main.exe prompt.c
 
 main.c:
-	cc cterp.c -o main
+	cc cInterpreter.c -o main
 
 test: main.c
 	echo "Running test - should expect exit(30)"
