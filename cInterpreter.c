@@ -117,12 +117,35 @@ void next() {
 				// the next 9-17 indices are identifier 2. Enums are actually integer values as well. So Token as the value of 0, while IdSize has the value of 8.
 				current_id = current_id + IdSize; // current_id = current_id + 8 a.k.a go to the next identifier group in current_id since each group has 9 indices for each identifier field but only 8 are used
 			}
-			
+
 			// store new id
 			current_id[Name] = (int)last_pos;
 			current_id[Hash] = hash;
 			token = current_id[Token] = Id;
 			return;
+		} else if (token >= '0' && token <= '9') {
+			// we will parse the number into three number systems, decimal, hex, oct
+			token_val = token - '0'; // in ascii '0' = 48, so if the value is currently '0' a.k.a 48 decimal, then we actually set the decimal to 0 because 48-48 = 0
+			if (token_val > 0) {
+				while (*src >= '0' && *src <= '9') {
+					// since src is next number lets say '1'
+					// if token_val = 0 then 0*10 = 0 + '1'(49) - '0'(48) = 0 + 1 = 1. src points to next number
+					// basically if the number does not start with 0 it will keep converting the string number ascii to an actual int type
+					token_val = token_val*10 + *src++ - '0';
+				}
+			} else if (*src == 'x' || *src == 'X') { // else if number starts with 0 as in 0xFF a.k.a if its hexadecimal
+				token = *++src; // skip the 'x' or 'X' and set token to the actual first letter or number of hexidecimal
+				while((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
+					token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0);
+					token = *++src;
+				}
+			} else {
+				// oct
+				while (*src >= '0' && *src <= '7') {
+					token_val = token_val*8 + *src++ - '0';
+				}
+            }
+
 		}
 	}
 
