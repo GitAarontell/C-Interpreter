@@ -136,6 +136,7 @@ void next() {
 			} else if (*src == 'x' || *src == 'X') { // else if number starts with 0 as in 0xFF a.k.a if its hexadecimal
 				token = *++src; // skip the 'x' or 'X' and set token to the actual first letter or number of hexidecimal
 				while((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
+					// 1 * 16 = 16 -> + 1 & 15 = 1 -> + 1 < 'A'(65) = 0 -> 16 + 1 + 0 = 17
 					token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0);
 					token = *++src;
 				}
@@ -146,6 +147,40 @@ void next() {
 				}
             }
 
+		} else if (token == '"' || token == '\'') {
+			last_pos = data;
+			while(*src != 0 && *src != token) { // as long as token is not another " or \ then the char will continue being added to *data
+				token_val = *src++; // set token to *src then increment *src to next char
+				if (token_val == '\\') { // this escapes so just skip to next char
+					token_val *src++;
+					if (token_val == 'n') { // if it was \n for new line
+						token_val = '\n';
+					}
+				}
+				if (token == '"') { // only add chars to data if loop is running(*src does not equal token " or \) and token was a string literal(")
+					*data++ = token_val; // data is a char * so this is setting the value at *data to '"'
+				}
+
+			}
+			src++;
+			if (token == '"') { // so if the string ends then token_val is set to the begining of the where that string started in data since last_pos = data
+				token_val = (int)last_pos;
+			} else { 
+				token = num; // returns 128 not sure when this scenario occurs though because the loop only does not run if the next char in src is 0 or " it seems
+			}
+
+			return;
+		} else if (token == '/') {
+			if (*src == '/') {
+				//skip comments
+				while (*src != 0 && *src != '\n') { // as long as not end of file and not new line
+					src++;
+				} else {
+					// else treat the / as a divide
+					token = Div;
+					return;
+				}
+			}
 		}
 	}
 
