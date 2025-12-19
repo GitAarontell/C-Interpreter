@@ -22,12 +22,6 @@ enum {
 // SC to store the character in AX into the memory whose address is stored on the top of the stack.
 // SI just like SC but dealing with integer instead of character.
 
-// tokens and classes (operators last and in precedence order)
-enum {
-  Num = 128, Fun, Sys, Glo, Loc, Id,
-  Char, Else, Enum, If, Int, Return, Sizeof, While,
-  Assign, Cond, Lor, Lan, Or, Xor, And, Eq, Ne, Lt, Gt, Le, Ge, Shl, Shr, Add, Sub, Mul, Div, Mod, Inc, Dec, Brak
-};
 
 //////////////////////////////////////////////////////////////////////////////// global variables
 
@@ -49,8 +43,90 @@ int *pc, // program counter stores the memory address of next instruction to run
 	cycle;
 
 //////////////////////////////////////////////////////////////////////////////// global variables
+
+// tokens and classes (operators last and in precedence order)
+enum {
+  Num = 128, Fun, Sys, Glo, Loc, Id,
+  Char, Else, Enum, If, Int, Return, Sizeof, While,
+  Assign, Cond, Lor, Lan, Or, Xor, And, Eq, Ne, Lt, Gt, Le, Ge, Shl, Shr, Add, Sub, Mul, Div, Mod, Inc, Dec, Brak
+};
+
+struct identifier {
+	int token;
+	int hash;
+	char * name;
+	int class;
+	int type;
+	int value;
+	int Bclass;
+	int Btype;
+	int Bvalue;
+}
+
+// fields of identifier
+enum {Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize};
+
+// lexical analysis is the process of converting a sequence of characters (such as in a computer program or web page) into a sequence of tokens (strings with an identified "meaning").
+// this is essentially going to look through a whole line from the source file, can also be multi line if there is a string or something that uses \n and tokenize it
+// this simplifies the job of a parser because a lexer looks at multiple characters and derives one meaning from it so the parser just has to deal with the meaning. In total, the parser
+// then has to look at less things. So its like if we had 100 lines of code, the lexer is kind of like divide this by 2 and then the parser only has to deal with 50 lines.
+int token_val; 		// value of current token
+int *current_id,	// current parsed ID
+	*symbols;		// symbol table
+
 void next() {
-	token = *src++; // this is shorthand for *(src++) due to operator precedence
+	char *last_pos;
+	int hash;
+	while (token = *src) { // this means token = the ascii value of the char at *src converted to an integer. As long as token != 0(end of the string) this condition will evaluate to true
+		++src;
+		// parse token here
+		if (token == '\n') {
+			++line;
+		} else if (token == '#') {
+			// we will not deal with macros
+			while (*src != 0 && *src != '\n') {
+				src++;
+			}
+		// ex: name of method test_method
+		// if token is any upper or lower case letter or _
+		} else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || (token == '_')) {
+			last_pos = src - 1; // this is pointer arithmetic, it will move back one byte since char is 1 byte, so we are going back to the last position
+			hash = token;
+			// hash is some int 12343478462837
+			// src now points to last letter or method name so points to 'd'
+			// creates integer value hash based off numbers and letters and _ symbol
+			while ((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src =='_') || (*src >= '0' && *src <= '9')) {
+				hash = hash * 147 + *src;
+				src++;
+			}
+			
+			// look for existing identifier
+			current_id = symbols;
+			while (current_id[Token]) { // while current_id[0] is non zero, any number other than 0 including negative numbers will evaluate to true
+				// is current_id[Hash] equal to the hash we just computed for test_method? If yes is the name at this hash exactly test_method?
+				// if current_id[1] equals hash and current_id[2] equals last_pos for src-last_pos bytes then we found a matching token
+				if (current_id[Hash] == hash && !memcmp((char *)current_id[Name], last_pos, src - last_pos)) {
+					// if so then set tokens pointer to where this token is
+					// found existing
+					token = current_id[Token];
+					return;
+				}
+				// if not, then move forward to the next identifier
+				// this is pointer arithmetic, so current_id is a long array of integers. We have out identifier enum above that has 9 values.
+				// we represent are array of these identifiers with current_id by breaking the array up into 9 indices to say the first 0-8 indcies is indentifier 1,
+				// the next 9-17 indices are identifier 2. Enums are actually integer values as well. So Token as the value of 0, while IdSize has the value of 8.
+				current_id = current_id + IdSize; // current_id = current_id + 8 a.k.a go to the next identifier group in current_id since each group has 9 indices for each identifier field but only 8 are used
+			}
+			
+			// store new id
+			current_id[Name] = (int)last_pos;
+			current_id[Hash] = hash;
+			token = current_id[Token] = Id;
+			return;
+		}
+	}
+
+
 	return;
 }
 
