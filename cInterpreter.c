@@ -181,6 +181,92 @@ void next() {
 					return;
 				}
 			}
+		} else if (token == '=') {
+			if(*src == '=') {
+				token = Eq;
+				src++;
+			} else {
+				token = Assign;
+			}
+			return;
+		} else if (token == '+') {
+			if (*src == '+') {
+				token = Inc;
+				src++;
+			} else {
+				token = Add;
+			}
+			return;
+		} else if (token == '-') {
+			if (*src == '-') {
+				token = Dec;
+				src++;
+			} else {
+				token = Sub;
+			}
+			return;
+		} else if (token == '!') {
+			if (*src == '=') {
+				token = Ne;
+				src++;
+			}
+			return;
+		} else if (token == '<') {
+			if (*src == '=') {
+				token = Le;
+				src++;
+			} else if (*src == '<') {
+				token = Shl; // shift all bits left 8 | 1 = 16  -> 8 | 2 = 32
+				src++;
+			} else {
+				token = Lt;
+			}
+			return;
+		} else if (token == '>') {
+			if (*src == '=') {
+				token = Ge;
+				src++;
+ 			} else if (*src == '>') {
+				token = Shr; // shift all bits right
+				src++;
+			} else {
+				token = Gt;
+			}
+			return;
+		} else if (token == '|') {
+			if (*src == '|') {
+				token = Lor;
+				src++;
+			} else {
+				token = Or; // bitwise or
+			}
+			return;
+		} else if (token == '&') {
+			if (*src == '&') {
+				token = Lan;
+				src++;
+			} else {
+				token = And;
+			}
+			return;
+		} else if (token == '^') {
+			token = Xor;
+			return;
+		} else if (token == '%') {
+			token = Mod;
+			return;
+		} else if (token == '*') {
+			token = Mul;
+			return;
+		} else if (token == '[') {
+			token = Brak;
+			return;
+		} else if (token == '?') {
+			token = Cond;
+			return;
+		} else if (token = '~' || token = ';' || token = '{' || token = '}' || token = '(' || token = ')' || token = ']' || token = ',' || token = ':') {
+			// this directly returns the char as a token
+			return;
 		}
 	}
 
